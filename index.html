@@ -1,41 +1,79 @@
+Me, [16.02.2026 13:11]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumia Harmony</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Здесь вы можете вставить ссылку на ваш любимый фон */
+        body {
+            background-image: url('ВАША_ССЫЛКА_НА_ФОН'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
 </head>
 <body class="bg-[#F2EDE4]">
     <div id="root"></div>
 
     <script type="text/babel">
+        const { useState } = React;
+
         const App = () => {
             return (
-                <div className="min-h-screen flex flex-col items-center p-8 text-black">
-                    <header className="text-center mb-10">
-                        <h1 className="text-4xl font-light tracking-[0.2em] uppercase mb-4">Lumia Harmony</h1>
-                        <p className="italic text-gray-600">Добрый день, Jenni</p>
-                        <p className="text-sm opacity-70">Гармония в 2026 году</p>
+                <div className="min-h-screen flex flex-col items-center p-6 text-black backdrop-blur-[2px]">
+                    <header className="text-center mb-10 mt-4">
+                        {/* Улучшенная читабельность: темный цвет и тень */}
+                        <h1 className="text-4xl font-light tracking-[0.2em] uppercase mb-4 text-[#2C2C2C] drop-shadow-sm">
+                            Lumia Harmony
+                        </h1>
+                        <p className="italic text-gray-800 font-medium">Добрый день, Jenni</p>
+                        <p className="text-xs opacity-80 uppercase tracking-tighter">Гармония в 2026 году</p>
                     </header>
 
-                    <main className="max-w-md w-full bg-white/40 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 text-center">
-                        <div className="mb-8">
-                            {/* Здесь твоя иллюстрация */}
-                            <div className="w-32 h-32 bg-[#B89B72]/20 rounded-full mx-auto flex items-center justify-center border border-[#B89B72]">
-                                <span className="text-[#B89B72] text-xs">YOGA MOUSE</span>
+                    <main className="max-w-md w-full space-y-4">
+                        {/* Блок с центральной кнопкой/иллюстрацией */}
+                        <div className="bg-white/60 backdrop-blur-2xl rounded-[40px] p-8 shadow-2xl border border-white/40 text-center mb-6">
+                            <div className="mb-6">
+                                <div className="w-24 h-24 bg-[#B89B72]/30 rounded-full mx-auto flex items-center justify-center border border-[#B89B72]/50 animate-pulse">
+                                    <span className="text-[#5C4D36] text-[10px] font-bold">LUNA AI</span>
+                                </div>
                             </div>
+                            <button className="w-full py-4 bg-[#2C2C2C] text-white rounded-2xl uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">
+                                Войти в практику
+                            </button>
                         </div>
 
-                        <button className="w-full py-4 bg-black text-white rounded-full uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg">
-                            Войти в практику
-                        </button>
+                        {/* ТРИ ВАШИ КНОПКИ (из сохраненных инструкций) */}
+                        <div className="grid grid-cols-1 gap-3">
+                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
+                                <span className="text-sm font-light uppercase tracking-wide">📊 Трекер привычек</span>
+                                <span className="text-lg">→</span>
+                            </button>
+                            
+                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
+                                <span className="text-sm font-light uppercase tracking-wide">📅 Женский контроль</span>
+                                <span className="text-lg">→</span>
+                            </button>
+                            
+                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
+                                <span className="text-sm font-light uppercase tracking-wide">✨ Красота и уход</span>
+                                <span className="text-lg">→</span>
+                            </button>
+                        </div>
                     </main>
 
-                    <footer className="mt-auto pt-10 text-[10px] uppercase tracking-widest text-center opacity-50">
+Me, [16.02.2026 13:11]
+<footer className="mt-auto pt-10 pb-6 text-[10px] uppercase tracking-widest text-center text-gray-700">
                         <p>© 2026 Lumia Harmony. Все права защищены.</p>
-                        <p className="mt-2 text-red-900/40">Disclaimer: Not a medical app.</p>
+                        <p className="mt-2 opacity-50">Disclaimer: Not a medical app.</p>
                     </footer>
                 </div>
             );
@@ -44,7 +82,5 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </body>
 </html>
