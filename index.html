@@ -1,175 +1,303 @@
-Me, [16.02.2026 13:29]
-import React, { useState } from 'react';
-import { 
-  Heart, Sparkles, MessageCircle, User, Scale, 
-  Star, Activity, ClipboardList, Moon, ChevronDown, 
-  Smile, Send, BarChart3 
-} from 'lucide-react';
+import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { LogOut, UserPlus, Star, Heart, Activity, Smile, Scale, Scissors } from "lucide-react";
+import LumiaLogo from "@/components/LumiaLogo";
+import LanguageSelector from "@/components/LanguageSelector";
+import LotusChat from "@/components/LotusChat";
+import GlassModal from "@/components/GlassModal";
+import LifeRhythmModal from "@/components/modals/LifeRhythmModal";
+import CycleHarmonyModal from "@/components/modals/CycleHarmonyModal";
+import BodyJourneyModal from "@/components/modals/BodyJourneyModal";
+import SkinMirrorModal from "@/components/modals/SkinMirrorModal";
+import MoodBreathModal from "@/components/modals/MoodBreathModal";
+import HabitsModal from "@/components/modals/HabitsModal";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getDailyPhrase } from "@/lib/daily-phrases";
+import { getZodiacFromDate } from "@/lib/zodiac";
+const lotusBg = "/images/lotus-bg.jpg";
+const zenWoman = "/images/zen-woman.jpg";
 
-// Специальный компонент для "Девушки в лотосе" на чистом коде (SVG)
-const ZenIllustration = () => (
-  <svg viewBox="0 0 200 200" className="w-64 h-64 opacity-60">
-    <defs>
-      <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-        <stop offset="0%" style={{ stopColor: '#B89B72', stopOpacity: 0.3 }} />
-        <stop offset="100%" style={{ stopColor: '#B89B72', stopOpacity: 0 }} />
-      </radialGradient>
-    </defs>
-    <circle cx="100" cy="100" r="80" fill="url(#grad1)" />
-    {/* Стилизованный лотос */}
-    <path d="M100 60 C120 90 150 100 100 140 C50 100 80 90 100 60" fill="#B89B72" opacity="0.5" />
-    <path d="M100 70 C130 100 160 120 100 150 C40 120 70 100 100 70" fill="#B89B72" opacity="0.3" />
-    <circle cx="100" cy="90" r="10" fill="#B89B72" opacity="0.6" />
-  </svg>
-);
+type ModalType = "skin" | "analyses" | "habits" | "cycle" | "body" | "mood" | null;
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
-  const [ascendant, setAscendant] = useState('Выберите Асцендент');
-  const [showAsc, setShowAsc] = useState(false);
-  const [mood, setMood] = useState('');
-  const [chatMessage, setChatMessage] = useState('');
-  const [posts, setPosts] = useState([
-    { id: 1, user: 'LUNA AI', text: 'Твоя энергия сегодня на высоте. Идеальное время для новых привычек!', time: '12:00', isBot: true }
-  ]);
+const leftNavKeys = [
+  { key: "skin" as const, labelKey: "navSkinMirror", icon: Scissors },
+  { key: "analyses" as const, labelKey: "navAnalyses", icon: Activity },
+  { key: "habits" as const, labelKey: "navHabits", icon: Heart },
+];
 
-  const zodiacs = ["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"];
+const rightNavKeys = [
+  { key: "cycle" as const, labelKey: "navCycle", icon: Heart },
+  { key: "body" as const, labelKey: "navBody", icon: Scale },
+  { key: "mood" as const, labelKey: "navMood", icon: Smile },
+];
 
-  const handleSendMessage = () => {
-    if (!chatMessage.trim()) return;
-    setPosts([{ id: Date.now(), user: 'jenni', text: chatMessage, time: 'Сейчас' }, ...posts]);
-    setChatMessage('');
-  };
+const glassStyle = {
+  background: "rgba(245, 240, 230, 0.92)",
+  backdropFilter: "blur(30px)",
+  WebkitBackdropFilter: "blur(30px)",
+  border: "1px solid rgba(245, 240, 230, 0.6)",
+  boxShadow: "0 4px 24px -4px rgba(0, 0, 0, 0.08)",
+};
+
+const espresso = "#1A0F0A";
+
+const Index = () => {
+  const navigate = useNavigate();
+  const { lang, t } = useLanguage();
+  const [userName, setUserName] = useState("Guest");
+  const [isDemo, setIsDemo] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [zodiacSymbol, setZodiacSymbol] = useState<string | null>(null);
+  const [showZodiac, setShowZodiac] = useState(false);
+  const [zodiacData, setZodiacData] = useState<{ name: string; prediction: string } | null>(null);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("lumia_user");
+    localStorage.removeItem("lumia_mode");
+    localStorage.removeItem("lumia_last_visit");
+    sessionStorage.removeItem("lumia_zen_shown");
+    navigate("/welcome", { replace: true });
+  }, [navigate]);
+
+  useEffect(() => {
+    try {
+      const mode = localStorage.getItem("lumia_mode");
+      const saved = localStorage.getItem("lumia_user");
+      if (!mode && !saved) { navigate("/welcome", { replace: true }); return; }
+      if (mode === "demo") { setIsDemo(true); setUserName("Guest"); }
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.name) setUserName(data.name);
+        setIsDemo(false);
+        localStorage.removeItem("lumia_mode");
+        localStorage.setItem("lumia_last_visit", Date.now().toString());
+        const bday = data.birthday || data.dob;
+        if (bday) {
+          const z = getZodiacFromDate(new Date(bday));
+          setZodiacSymbol(z.symbol);
+          setZodiacData({ name: lang === "ru" ? z.name : z.nameEn, prediction: z.prediction });
+        }
+      }
+      setReady(true);
+    } catch (err) {
+      console.error("Dashboard init error:", err);
+      setReady(true);
+    }
+  }, [navigate, lang]);
+
+  if (!ready) return null;
+
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? t.goodMorning : hour < 18 ? t.goodAfternoon : t.goodEvening;
+  const dailyPhrase = getDailyPhrase(lang === "ru" ? "ru" : "en", userName, timeGreeting);
 
   return (
-    <div className="min-h-screen relative font-sans text-black overflow-x-hidden" style={{ backgroundColor: '#F2EDE4' }}>
-      
-      {/* Мягкие декоративные круги на фоне вместо фото */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-white rounded-full blur-[120px] opacity-60"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-[#B89B72]/10 rounded-full blur-[120px] opacity-40"></div>
+    <div className="safe-bottom relative flex min-h-[100dvh] flex-col overflow-hidden">
+      {/* Blurred lotus background */}
+      <div
+        className="fixed inset-0 z-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${lotusBg})`,
+          filter: "blur(60px)",
+          transform: "scale(1.15)",
+        }}
+      />
+      <div className="fixed inset-0 z-0" style={{ background: "rgba(245, 240, 230, 0.4)" }} />
+      <div className="relative z-10">
+        <LanguageSelector />
       </div>
 
-      <div className="relative z-10 max-w-lg mx-auto pb-40 px-6">
-        
-        <header className="pt-12 pb-8 text-center">
-          <div className="mb-4 flex flex-col items-center">
-            <Sparkles size={24} className="text-[#B89B72] mb-2 opacity-50" />
-            <h2 className="text-[#B89B72] tracking-[0.5em] text-sm font-serif uppercase">LUMIA</h2>
+      <main className="relative z-10 flex flex-1 flex-col items-center px-4 py-6 lg:px-12">
+        {/* Logo */}
+        <LumiaLogo size="lg" />
+
+        {/* Greeting */}
+        <motion.h2
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-4 text-center font-display text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl"
+          style={{ color: "#000000" }}
+        >
+          {timeGreeting}, {userName}!
+        </motion.h2>
+
+        {/* Layout: Left Nav — Center — Right Nav */}
+        <div className="mt-6 flex w-full max-w-5xl items-start justify-between gap-3 md:gap-6 lg:gap-10">
+          {/* Left buttons */}
+          <div className="flex flex-col gap-2.5 md:gap-3">
+            {leftNavKeys.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.button
+                  key={item.key}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  onClick={() => setActiveModal(item.key)}
+                  className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all duration-300 hover:shadow-md active:scale-[0.97] md:px-5 md:py-4 lg:px-6"
+                  style={glassStyle}
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 md:h-10 md:w-10">
+                    <Icon className="h-3.5 w-3.5 text-primary md:h-5 md:w-5" strokeWidth={1.5} />
+                  </div>
+                  <span className="font-display text-[11px] font-bold uppercase tracking-wider md:text-sm lg:text-base" style={{ color: "#000000" }}>
+                    {t[item.labelKey]}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
-          <h1 className="text-3xl font-serif font-light mb-4">Доброе утро, jenni!</h1>
-          
-          <div className="relative inline-block">
-            <button 
-              onClick={() => setShowAsc(!showAsc)} 
-              className="flex items-center gap-2 py-2 px-6 bg-white/60 backdrop-blur-md rounded-full border border-white/80 text-[10px] font-black uppercase text-[#B89B72] shadow-sm active:scale-95 transition-all"
+
+          {/* Center column: Daily Insight + image */}
+          <div className="flex flex-1 flex-col items-center">
+            {/* Daily insight card */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="w-full max-w-md rounded-2xl px-5 py-4 md:px-8 md:py-6"
+              style={glassStyle}
             >
-              <Star size={12} className="fill-[#B89B72]"/> {ascendant} <ChevronDown size={12}/>
-            </button>
-            {showAsc && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 bg-white rounded-2xl shadow-2xl border border-white z-50 max-h-52 overflow-y-auto p-2">
-                {zodiacs.map(z => (
-                  <button key={z} onClick={() => {setAscendant(z); setShowAsc(false)}} className="w-full py-2 px-4 text-[10px] font-bold text-left hover:bg-[#F2EDE4] rounded-xl text-black">
-                    {z}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </header>
-
-Me, [16.02.2026 13:29]
-{activeTab === 'home' && (
-          <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Состояние */}
-            <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[30px] border border-white shadow-sm">
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#B89B72] mb-2">Настроение</p>
-              <input 
-                type="text" 
-                value={mood} 
-                onChange={(e) => setMood(e.target.value)} 
-                placeholder="Что на душе?" 
-                className="w-full bg-transparent border-none p-0 text-[15px] font-bold text-black focus:ring-0 placeholder:text-black/10"
-              />
-            </div>
-
-            {/* Инсайт */}
-            <div className="bg-white/40 backdrop-blur-md rounded-[40px] p-8 border border-white/50 text-center">
-              <p className="text-[14px] leading-relaxed font-bold italic opacity-70">
-                "Красота — это спокойствие ума."
+              <h3 className="font-display text-xs font-bold uppercase tracking-[0.2em] md:text-sm" style={{ color: "#000000" }}>
+                {t.dailyInsight}
+              </h3>
+              <p className="mt-3 font-body text-sm leading-relaxed md:text-base lg:text-lg" style={{ color: "#000000" }}>
+                {isDemo ? t.demoInsight : dailyPhrase.tip}
               </p>
-            </div>
+            </motion.div>
 
-            {/* Иллюстрация (SVG - больше никакой собачки!) */}
-            <div className="flex justify-center py-4">
-              <ZenIllustration />
-            </div>
-
-            {/* Сетка */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Уход за кожей', icon: <Sparkles size={18}/> },
-                { label: 'Трекер привычек', icon: <ClipboardList size={18}/> },
-                { label: 'Цикл & Мама', icon: <Heart size={18} className="text-red-400"/> },
-                { label: 'Вес & Талия', icon: <Scale size={18}/> },
-                { label: 'Гороскоп', icon: <Moon size={18}/> },
-                { label: 'Анализы', icon: <Activity size={18}/> }
-              ].map((m, i) => (
-                <button key={i} className="bg-white/90 backdrop-blur-sm p-7 rounded-[35px] flex flex-col items-center gap-3 border border-white shadow-sm active:scale-95 transition-all">
-                  <div className="text-[#B89B72]">{m.icon}</div>
-                  <span className="text-[10px] font-black tracking-widest uppercase text-center">{m.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'circle' && (
-          <div className="space-y-6 animate-in slide-in-from-bottom-5">
-            <h3 className="text-2xl font-serif text-center mb-8">Lumia Circle</h3>
-            <div className="bg-white p-6 rounded-[35px] border border-white flex gap-3 shadow-sm">
-              <input 
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                placeholder="Ваше сообщение..." 
-                className="flex-1 bg-transparent border-none focus:ring-0 font-bold"
+            {/* Woman illustration */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="mt-4 w-[90%] max-w-lg"
+            >
+              <img
+                src={zenWoman}
+                alt="Zen Woman in Lotus"
+                className="mx-auto w-full rounded-3xl object-contain"
+                style={{ filter: "drop-shadow(0 8px 32px rgba(212, 175, 55, 0.2))" }}
               />
-              <button onClick={handleSendMessage} className="bg-black text-white p-3 rounded-full"><Send size={18}/></button>
-            </div>
-            <div className="space-y-4">
-              {posts.map(p => (
-                <div key={p.id} className={p-6 rounded-[30px] border border-white shadow-sm ${p.isBot ? 'bg-[#B89B72]/10 border-[#B89B72]/20' : 'bg-white'}}>
-                   <p className="text-[10px] font-black text-[#B89B72] mb-1 uppercase">{p.user}</p>
-                   <p className="text-sm font-bold">{p.text}</p>
-                </div>
-              ))}
-            </div>
+            </motion.div>
+          </div>
+
+          {/* Right buttons */}
+          <div className="flex flex-col gap-2.5 md:gap-3">
+            {rightNavKeys.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.button
+                  key={item.key}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  onClick={() => setActiveModal(item.key)}
+                  className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all duration-300 hover:shadow-md active:scale-[0.97] md:px-5 md:py-4 lg:px-6"
+                  style={glassStyle}
+                >
+                  <span className="font-display text-[11px] font-bold uppercase tracking-wider md:text-sm lg:text-base" style={{ color: "#000000" }}>
+                    {t[item.labelKey]}
+                  </span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 md:h-10 md:w-10">
+                    <Icon className="h-3.5 w-3.5 text-primary md:h-5 md:w-5" strokeWidth={1.5} />
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Auth action */}
+        <div className="mt-4">
+          {isDemo ? (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              onClick={() => navigate("/onboarding")}
+              className="flex items-center gap-2 rounded-full border border-primary/20 px-6 py-2.5 font-body text-xs font-medium uppercase tracking-widest text-primary transition-all hover:bg-primary/5 md:px-8 md:py-3 md:text-sm"
+            >
+              <UserPlus className="h-4 w-4" />
+              {t.signUp}
+            </motion.button>
+          ) : (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              onClick={handleLogout}
+              className="flex items-center gap-2 rounded-full px-6 py-2.5 font-body text-xs uppercase tracking-widest transition-all hover:opacity-80 md:text-sm"
+              style={{ color: espresso, opacity: 0.5 }}
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              {t.logout}
+            </motion.button>
+          )}
+        </div>
+      </main>
+
+      {/* Floating Horoscope */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.9 }}
+        onClick={() => zodiacSymbol ? setShowZodiac(true) : (isDemo ? navigate("/onboarding") : null)}
+        className="fixed bottom-8 left-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-lg transition-all duration-300 hover:shadow-lg md:h-14 md:w-14"
+        style={glassStyle}
+        aria-label="Horoscope"
+      >
+        {zodiacSymbol || <Star className="h-5 w-5 text-primary" strokeWidth={1.5} />}
+      </motion.button>
+
+      {/* Zodiac Modal */}
+      <GlassModal open={showZodiac} onClose={() => setShowZodiac(false)} title={t.modalForecast}>
+        {zodiacData && (
+          <div className="flex flex-col items-center gap-4 text-center">
+            <span className="text-5xl">{zodiacSymbol}</span>
+            <h3 className="font-display text-xl font-semibold md:text-2xl" style={{ color: espresso }}>{zodiacData.name}</h3>
+            <p className="font-body text-sm leading-relaxed md:text-base lg:text-lg" style={{ color: espresso, opacity: 0.8 }}>{zodiacData.prediction}</p>
           </div>
         )}
+      </GlassModal>
 
-        <p className="text-[8px] text-black/20 font-bold uppercase tracking-[0.2em] text-center mt-20">
-          Lumia Harmony. 2026. Обратитесь к специалисту.
+      {/* Module Modals */}
+      <GlassModal open={activeModal === "skin"} onClose={() => setActiveModal(null)} title={t.modalSkin}>
+        <SkinMirrorModal />
+      </GlassModal>
+      <GlassModal open={activeModal === "analyses"} onClose={() => setActiveModal(null)} title={t.modalAnalyses}>
+        <LifeRhythmModal />
+      </GlassModal>
+      <GlassModal open={activeModal === "habits"} onClose={() => setActiveModal(null)} title={t.modalHabits}>
+        <HabitsModal />
+      </GlassModal>
+      <GlassModal open={activeModal === "cycle"} onClose={() => setActiveModal(null)} title={t.modalCycle}>
+        <CycleHarmonyModal />
+      </GlassModal>
+      <GlassModal open={activeModal === "body"} onClose={() => setActiveModal(null)} title={t.modalBody}>
+        <BodyJourneyModal />
+      </GlassModal>
+      <GlassModal open={activeModal === "mood"} onClose={() => setActiveModal(null)} title={t.modalMood}>
+        <MoodBreathModal />
+      </GlassModal>
+
+      {/* Floating AI Assistant */}
+      <LotusChat activeModule={activeModal} />
+
+      {/* Footer */}
+      <footer className="relative z-10 w-full border-t border-primary/10 px-6 py-3 text-center" style={{ background: "rgba(245, 240, 230, 0.85)" }}>
+        <p className="font-body text-[10px] md:text-xs" style={{ color: "#000000", opacity: 0.5 }}>
+          {t.disclaimer}
         </p>
-      </div>
-
-      {/* Меню */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-3xl border-t border-gray-100 p-8 rounded-t-[50px] shadow-2xl">
-        <div className="max-w-md mx-auto flex justify-around items-center">
-
-Me, [16.02.2026 13:29]
-<button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? 'text-black' : 'text-gray-300'}>
-            <Heart size={24} fill={activeTab === 'home' ? 'black' : 'none'}/>
-          </button>
-          <button onClick={() => setActiveTab('circle')} className={activeTab === 'circle' ? 'text-black' : 'text-gray-300'}>
-            <MessageCircle size={24} fill={activeTab === 'circle' ? 'black' : 'none'}/>
-          </button>
-          <div className="bg-black text-white p-5 rounded-full -mt-12 border-4 border-[#F2EDE4] shadow-xl">
-            <Sparkles size={24}/>
-          </div>
-          <button className="text-gray-300"><BarChart3 size={24}/></button>
-          <button className="text-gray-300"><User size={24}/></button>
-        </div>
-      </nav>
+        <p className="mt-1 font-body text-[9px] md:text-[11px]" style={{ color: "#000000", opacity: 0.35 }}>
+          {t.copyright}
+        </p>
+      </footer>
     </div>
   );
-}
+};
+
+export default Index;
