@@ -1,303 +1,130 @@
-import { useEffect, useState, useCallback } from "react";
+Me, [16.02.2026 13:50]
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { LogOut, UserPlus, Star, Heart, Activity, Smile, Scale, Scissors } from "lucide-react";
-import LumiaLogo from "@/components/LumiaLogo";
-import LanguageSelector from "@/components/LanguageSelector";
-import LotusChat from "@/components/LotusChat";
-import GlassModal from "@/components/GlassModal";
-import LifeRhythmModal from "@/components/modals/LifeRhythmModal";
-import CycleHarmonyModal from "@/components/modals/CycleHarmonyModal";
-import BodyJourneyModal from "@/components/modals/BodyJourneyModal";
-import SkinMirrorModal from "@/components/modals/SkinMirrorModal";
-import MoodBreathModal from "@/components/modals/MoodBreathModal";
-import HabitsModal from "@/components/modals/HabitsModal";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getDailyPhrase } from "@/lib/daily-phrases";
-import { getZodiacFromDate } from "@/lib/zodiac";
-const lotusBg = "/images/lotus-bg.jpg";
-const zenWoman = "/images/zen-woman.jpg";
+import { 
+  LogOut, UserPlus, Star, Heart, Activity, 
+  Smile, Scale, Scissors, Sparkles 
+} from "lucide-react";
 
-type ModalType = "skin" | "analyses" | "habits" | "cycle" | "body" | "mood" | null;
-
-const leftNavKeys = [
-  { key: "skin" as const, labelKey: "navSkinMirror", icon: Scissors },
-  { key: "analyses" as const, labelKey: "navAnalyses", icon: Activity },
-  { key: "habits" as const, labelKey: "navHabits", icon: Heart },
-];
-
-const rightNavKeys = [
-  { key: "cycle" as const, labelKey: "navCycle", icon: Heart },
-  { key: "body" as const, labelKey: "navBody", icon: Scale },
-  { key: "mood" as const, labelKey: "navMood", icon: Smile },
-];
-
-const glassStyle = {
-  background: "rgba(245, 240, 230, 0.92)",
-  backdropFilter: "blur(30px)",
-  WebkitBackdropFilter: "blur(30px)",
-  border: "1px solid rgba(245, 240, 230, 0.6)",
-  boxShadow: "0 4px 24px -4px rgba(0, 0, 0, 0.08)",
+// Константы стиля согласно паспорту проекта v1.2
+const COLORS = {
+  bg: "#F2EDE4",
+  accent: "#B89B72",
+  text: "#000000",
+  glass: "rgba(255, 255, 255, 0.4)"
 };
 
-const espresso = "#1A0F0A";
+const glassStyle = {
+  background: COLORS.glass,
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  border: "1px solid rgba(184, 155, 114, 0.2)",
+  boxShadow: "0 4px 24px -4px rgba(0, 0, 0, 0.05)",
+};
+
+// Встроенный SVG символ (Девушка в лотосе) для стабильности
+const LotusLadySVG = () => (
+  <svg viewBox="0 0 200 200" className="w-full max-w-[300px] drop-shadow-2xl">
+    <path fill={COLORS.accent} d="M100 30c-15 30-40 40-40 70s20 40 40 40 40-10 40-40-25-40-40-70z" opacity="0.6" />
+    <circle cx="100" cy="80" r="15" fill={COLORS.text} />
+    <path d="M70 110 q30 20 60 0" stroke={COLORS.text} fill="none" strokeWidth="2" />
+    <path fill={COLORS.accent} d="M40 130 q60 40 120 0" opacity="0.3" />
+  </svg>
+);
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { lang, t } = useLanguage();
-  const [userName, setUserName] = useState("Guest");
-  const [isDemo, setIsDemo] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [zodiacSymbol, setZodiacSymbol] = useState<string | null>(null);
-  const [showZodiac, setShowZodiac] = useState(false);
-  const [zodiacData, setZodiacData] = useState<{ name: string; prediction: string } | null>(null);
+  const [userName, setUserName] = useState("Jennie");
+  const [activeModal, setActiveModal] = useState(null);
 
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem("lumia_user");
-    localStorage.removeItem("lumia_mode");
-    localStorage.removeItem("lumia_last_visit");
-    sessionStorage.removeItem("lumia_zen_shown");
-    navigate("/welcome", { replace: true });
-  }, [navigate]);
-
-  useEffect(() => {
-    try {
-      const mode = localStorage.getItem("lumia_mode");
-      const saved = localStorage.getItem("lumia_user");
-      if (!mode && !saved) { navigate("/welcome", { replace: true }); return; }
-      if (mode === "demo") { setIsDemo(true); setUserName("Guest"); }
-      if (saved) {
-        const data = JSON.parse(saved);
-        if (data.name) setUserName(data.name);
-        setIsDemo(false);
-        localStorage.removeItem("lumia_mode");
-        localStorage.setItem("lumia_last_visit", Date.now().toString());
-        const bday = data.birthday || data.dob;
-        if (bday) {
-          const z = getZodiacFromDate(new Date(bday));
-          setZodiacSymbol(z.symbol);
-          setZodiacData({ name: lang === "ru" ? z.name : z.nameEn, prediction: z.prediction });
-        }
-      }
-      setReady(true);
-    } catch (err) {
-      console.error("Dashboard init error:", err);
-      setReady(true);
-    }
-  }, [navigate, lang]);
-
-  if (!ready) return null;
-
-  const hour = new Date().getHours();
-  const timeGreeting = hour < 12 ? t.goodMorning : hour < 18 ? t.goodAfternoon : t.goodEvening;
-  const dailyPhrase = getDailyPhrase(lang === "ru" ? "ru" : "en", userName, timeGreeting);
+  // Сетка кнопок согласно функциональным блокам (6 факторов)
+  const navItems = [
+    { key: "skin", label: "SKIN MIRROR", icon: Scissors },
+    { key: "analyses", label: "MY ANALYSES", icon: Activity },
+    { key: "habits", label: "HABITS", icon: Heart },
+    { key: "cycle", label: "CYCLE & MOM", icon: Sparkles },
+    { key: "body", label: "WEIGHT & WAIST", icon: Scale },
+    { key: "mood", label: "HOROSCOPE", icon: Star },
+  ];
 
   return (
-    <div className="safe-bottom relative flex min-h-[100dvh] flex-col overflow-hidden">
-      {/* Blurred lotus background */}
-      <div
-        className="fixed inset-0 z-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${lotusBg})`,
-          filter: "blur(60px)",
-          transform: "scale(1.15)",
-        }}
-      />
-      <div className="fixed inset-0 z-0" style={{ background: "rgba(245, 240, 230, 0.4)" }} />
-      <div className="relative z-10">
-        <LanguageSelector />
-      </div>
+    <div className="relative min-h-screen flex flex-col items-center p-6" style={{ backgroundColor: COLORS.bg }}>
+      
+      {/* Шапка: Лого и Асцендент */}
+      <header className="w-full max-w-5xl flex justify-between items-center mb-10">
+        <div className="text-2xl font-bold tracking-tighter" style={{ color: COLORS.text }}>LUMIA</div>
+        <div className="p-2 rounded-full border" style={{ borderColor: COLORS.accent }}>
+          <span className="text-xs font-bold">ASC: LIBRA ♎</span>
+        </div>
+      </header>
 
-      <main className="relative z-10 flex flex-1 flex-col items-center px-4 py-6 lg:px-12">
-        {/* Logo */}
-        <LumiaLogo size="lg" />
+      {/* Приветствие */}
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl md:text-5xl font-light mb-2" style={{ color: COLORS.text }}>
+          Good afternoon, <span className="font-semibold">{userName}</span>
+        </h1>
+      </motion.div>
 
-        {/* Greeting */}
-        <motion.h2
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-4 text-center font-display text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl"
-          style={{ color: "#000000" }}
-        >
-          {timeGreeting}, {userName}!
-        </motion.h2>
-
-        {/* Layout: Left Nav — Center — Right Nav */}
-        <div className="mt-6 flex w-full max-w-5xl items-start justify-between gap-3 md:gap-6 lg:gap-10">
-          {/* Left buttons */}
-          <div className="flex flex-col gap-2.5 md:gap-3">
-            {leftNavKeys.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <motion.button
-                  key={item.key}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  onClick={() => setActiveModal(item.key)}
-                  className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all duration-300 hover:shadow-md active:scale-[0.97] md:px-5 md:py-4 lg:px-6"
-                  style={glassStyle}
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 md:h-10 md:w-10">
-                    <Icon className="h-3.5 w-3.5 text-primary md:h-5 md:w-5" strokeWidth={1.5} />
-                  </div>
-                  <span className="font-display text-[11px] font-bold uppercase tracking-wider md:text-sm lg:text-base" style={{ color: "#000000" }}>
-                    {t[item.labelKey]}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-
-          {/* Center column: Daily Insight + image */}
-          <div className="flex flex-1 flex-col items-center">
-            {/* Daily insight card */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="w-full max-w-md rounded-2xl px-5 py-4 md:px-8 md:py-6"
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+        
+        {/* Левая колонка кнопок */}
+        <div className="flex flex-col gap-4">
+          {navItems.slice(0, 3).map((item) => (
+            <button
+              key={item.key}
+              className="flex items-center gap-4 p-5 rounded-2xl transition-transform active:scale-95"
               style={glassStyle}
             >
-              <h3 className="font-display text-xs font-bold uppercase tracking-[0.2em] md:text-sm" style={{ color: "#000000" }}>
-                {t.dailyInsight}
-              </h3>
-              <p className="mt-3 font-body text-sm leading-relaxed md:text-base lg:text-lg" style={{ color: "#000000" }}>
-                {isDemo ? t.demoInsight : dailyPhrase.tip}
-              </p>
-            </motion.div>
-
-            {/* Woman illustration */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mt-4 w-[90%] max-w-lg"
-            >
-              <img
-                src={zenWoman}
-                alt="Zen Woman in Lotus"
-                className="mx-auto w-full rounded-3xl object-contain"
-                style={{ filter: "drop-shadow(0 8px 32px rgba(212, 175, 55, 0.2))" }}
-              />
-            </motion.div>
-          </div>
-
-          {/* Right buttons */}
-          <div className="flex flex-col gap-2.5 md:gap-3">
-            {rightNavKeys.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <motion.button
-                  key={item.key}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                  onClick={() => setActiveModal(item.key)}
-                  className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all duration-300 hover:shadow-md active:scale-[0.97] md:px-5 md:py-4 lg:px-6"
-                  style={glassStyle}
-                >
-                  <span className="font-display text-[11px] font-bold uppercase tracking-wider md:text-sm lg:text-base" style={{ color: "#000000" }}>
-                    {t[item.labelKey]}
-                  </span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 md:h-10 md:w-10">
-                    <Icon className="h-3.5 w-3.5 text-primary md:h-5 md:w-5" strokeWidth={1.5} />
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
+              <item.icon size={20} color={COLORS.accent} />
+              <span className="text-xs font-bold tracking-widest" style={{ color: COLORS.text }}>{item.label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Auth action */}
-        <div className="mt-4">
-          {isDemo ? (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              onClick={() => navigate("/onboarding")}
-              className="flex items-center gap-2 rounded-full border border-primary/20 px-6 py-2.5 font-body text-xs font-medium uppercase tracking-widest text-primary transition-all hover:bg-primary/5 md:px-8 md:py-3 md:text-sm"
-            >
-              <UserPlus className="h-4 w-4" />
-              {t.signUp}
-            </motion.button>
-          ) : (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              onClick={handleLogout}
-              className="flex items-center gap-2 rounded-full px-6 py-2.5 font-body text-xs uppercase tracking-widest transition-all hover:opacity-80 md:text-sm"
-              style={{ color: espresso, opacity: 0.5 }}
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              {t.logout}
-            </motion.button>
-          )}
-        </div>
-      </main>
-
-      {/* Floating Horoscope */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.9 }}
-        onClick={() => zodiacSymbol ? setShowZodiac(true) : (isDemo ? navigate("/onboarding") : null)}
-        className="fixed bottom-8 left-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-lg transition-all duration-300 hover:shadow-lg md:h-14 md:w-14"
-        style={glassStyle}
-        aria-label="Horoscope"
-      >
-        {zodiacSymbol || <Star className="h-5 w-5 text-primary" strokeWidth={1.5} />}
-      </motion.button>
-
-      {/* Zodiac Modal */}
-      <GlassModal open={showZodiac} onClose={() => setShowZodiac(false)} title={t.modalForecast}>
-        {zodiacData && (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <span className="text-5xl">{zodiacSymbol}</span>
-            <h3 className="font-display text-xl font-semibold md:text-2xl" style={{ color: espresso }}>{zodiacData.name}</h3>
-            <p className="font-body text-sm leading-relaxed md:text-base lg:text-lg" style={{ color: espresso, opacity: 0.8 }}>{zodiacData.prediction}</p>
+        {/* Центр: Иллюстрация и Инсайт */}
+        <div className="flex flex-col items-center order-first md:order-none">
+          <div className="mb-6 p-6 rounded-3xl text-center" style={glassStyle}>
+            <p className="text-[10px] font-bold tracking-[0.3em] mb-2 uppercase opacity-60">Daily Insight</p>
+            <p className="text-sm leading-relaxed" style={{ color: COLORS.text }}>
+              How is your mood today? Remember, even small self-care rituals make a big difference.
+            </p>
           </div>
-        )}
-      </GlassModal>
+          <LotusLadySVG />
+        </div>
 
-      {/* Module Modals */}
-      <GlassModal open={activeModal === "skin"} onClose={() => setActiveModal(null)} title={t.modalSkin}>
-        <SkinMirrorModal />
-      </GlassModal>
-      <GlassModal open={activeModal === "analyses"} onClose={() => setActiveModal(null)} title={t.modalAnalyses}>
-        <LifeRhythmModal />
-      </GlassModal>
-      <GlassModal open={activeModal === "habits"} onClose={() => setActiveModal(null)} title={t.modalHabits}>
-        <HabitsModal />
-      </GlassModal>
-      <GlassModal open={activeModal === "cycle"} onClose={() => setActiveModal(null)} title={t.modalCycle}>
-        <CycleHarmonyModal />
-      </GlassModal>
-      <GlassModal open={activeModal === "body"} onClose={() => setActiveModal(null)} title={t.modalBody}>
-        <BodyJourneyModal />
-      </GlassModal>
-      <GlassModal open={activeModal === "mood"} onClose={() => setActiveModal(null)} title={t.modalMood}>
-        <MoodBreathModal />
-      </GlassModal>
+Me, [16.02.2026 13:50]
+{/* Правая колонка кнопок */}
+        <div className="flex flex-col gap-4">
+          {navItems.slice(3, 6).map((item) => (
+            <button
+              key={item.key}
+              className="flex items-center justify-between gap-4 p-5 rounded-2xl transition-transform active:scale-95"
+              style={glassStyle}
+            >
+              <span className="text-xs font-bold tracking-widest" style={{ color: COLORS.text }}>{item.label}</span>
+              <item.icon size={20} color={COLORS.accent} />
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* Floating AI Assistant */}
-      <LotusChat activeModule={activeModal} />
-
-      {/* Footer */}
-      <footer className="relative z-10 w-full border-t border-primary/10 px-6 py-3 text-center" style={{ background: "rgba(245, 240, 230, 0.85)" }}>
-        <p className="font-body text-[10px] md:text-xs" style={{ color: "#000000", opacity: 0.5 }}>
-          {t.disclaimer}
-        </p>
-        <p className="mt-1 font-body text-[9px] md:text-[11px]" style={{ color: "#000000", opacity: 0.35 }}>
-          {t.copyright}
-        </p>
+      {/* Нижняя навигация */}
+      <footer className="fixed bottom-6 w-full max-w-xs flex justify-around p-4 rounded-full shadow-xl border" style={{ ...glassStyle, borderColor: COLORS.accent }}>
+         <Smile size={24} color={COLORS.text} />
+         <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center -mt-8 shadow-lg">
+            <Sparkles size={20} color="#FFF" />
+         </div>
+         <LogOut size={24} color={COLORS.text} onClick={() => console.log('logout')} />
       </footer>
     </div>
   );
 };
 
 export default Index;
+};
+
+export default Index;
+
