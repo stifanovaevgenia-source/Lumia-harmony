@@ -1,10 +1,27 @@
-Me, [16.02.2026 13:26]
+Me, [16.02.2026 13:29]
 import React, { useState } from 'react';
 import { 
   Heart, Sparkles, MessageCircle, User, Scale, 
   Star, Activity, ClipboardList, Moon, ChevronDown, 
   Smile, Send, BarChart3 
 } from 'lucide-react';
+
+// Специальный компонент для "Девушки в лотосе" на чистом коде (SVG)
+const ZenIllustration = () => (
+  <svg viewBox="0 0 200 200" className="w-64 h-64 opacity-60">
+    <defs>
+      <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+        <stop offset="0%" style={{ stopColor: '#B89B72', stopOpacity: 0.3 }} />
+        <stop offset="100%" style={{ stopColor: '#B89B72', stopOpacity: 0 }} />
+      </radialGradient>
+    </defs>
+    <circle cx="100" cy="100" r="80" fill="url(#grad1)" />
+    {/* Стилизованный лотос */}
+    <path d="M100 60 C120 90 150 100 100 140 C50 100 80 90 100 60" fill="#B89B72" opacity="0.5" />
+    <path d="M100 70 C130 100 160 120 100 150 C40 120 70 100 100 70" fill="#B89B72" opacity="0.3" />
+    <circle cx="100" cy="90" r="10" fill="#B89B72" opacity="0.6" />
+  </svg>
+);
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -13,7 +30,7 @@ export default function App() {
   const [mood, setMood] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [posts, setPosts] = useState([
-    { id: 1, user: 'LUNA AI', text: 'Сегодня идеальный день для ухода за собой. Твоя кожа будет благодарна за увлажнение.', time: '12:00', isBot: true }
+    { id: 1, user: 'LUNA AI', text: 'Твоя энергия сегодня на высоте. Идеальное время для новых привычек!', time: '12:00', isBot: true }
   ]);
 
   const zodiacs = ["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"];
@@ -25,33 +42,32 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen relative font-sans text-black" style={{ backgroundColor: '#F2EDE4' }}>
+    <div className="min-h-screen relative font-sans text-black overflow-x-hidden" style={{ backgroundColor: '#F2EDE4' }}>
       
-      {/* Фон с мягким размытием */}
-      <div className="fixed inset-0 pointer-events-none opacity-40">
-         <img src="https://images.unsplash.com/photo-1502673530728-f79b4cab31b1?auto=format&fit=crop&q=80" className="w-full h-full object-cover blur-[80px]" alt="Background"/>
+      {/* Мягкие декоративные круги на фоне вместо фото */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-white rounded-full blur-[120px] opacity-60"></div>
+        <div className="absolute bottom-[-5%] right-[-5%] w-96 h-96 bg-[#B89B72]/10 rounded-full blur-[120px] opacity-40"></div>
       </div>
 
       <div className="relative z-10 max-w-lg mx-auto pb-40 px-6">
         
-        {/* Шапка проекта */}
         <header className="pt-12 pb-8 text-center">
-          <div className="mb-4">
+          <div className="mb-4 flex flex-col items-center">
+            <Sparkles size={24} className="text-[#B89B72] mb-2 opacity-50" />
             <h2 className="text-[#B89B72] tracking-[0.5em] text-sm font-serif uppercase">LUMIA</h2>
-            <p className="text-[#B89B72] text-[8px] tracking-[0.2em] uppercase opacity-60">Harmony</p>
           </div>
           <h1 className="text-3xl font-serif font-light mb-4">Доброе утро, jenni!</h1>
           
-          {/* Интерактивный Асцендент */}
           <div className="relative inline-block">
             <button 
               onClick={() => setShowAsc(!showAsc)} 
-              className="flex items-center gap-2 py-2 px-6 bg-white/40 backdrop-blur-md rounded-full border border-white/60 text-[10px] font-black uppercase text-[#B89B72] shadow-sm active:scale-95 transition-all"
+              className="flex items-center gap-2 py-2 px-6 bg-white/60 backdrop-blur-md rounded-full border border-white/80 text-[10px] font-black uppercase text-[#B89B72] shadow-sm active:scale-95 transition-all"
             >
               <Star size={12} className="fill-[#B89B72]"/> {ascendant} <ChevronDown size={12}/>
             </button>
             {showAsc && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-xl border border-white z-50 max-h-52 overflow-y-auto p-2">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 bg-white rounded-2xl shadow-2xl border border-white z-50 max-h-52 overflow-y-auto p-2">
                 {zodiacs.map(z => (
                   <button key={z} onClick={() => {setAscendant(z); setShowAsc(false)}} className="w-full py-2 px-4 text-[10px] font-bold text-left hover:bg-[#F2EDE4] rounded-xl text-black">
                     {z}
@@ -62,54 +78,46 @@ export default function App() {
           </div>
         </header>
 
-        {activeTab === 'home' && (
-          <div className="space-y-8">
-            {/* Трекер настроения */}
-            <div className="bg-white/60 backdrop-blur-xl p-5 rounded-[30px] border border-white shadow-sm ring-1 ring-black/[0.02]">
-              <div className="flex items-center gap-3 mb-2">
-                <Smile size={18} className="text-[#B89B72]" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Твое состояние</span>
-              </div>
+Me, [16.02.2026 13:29]
+{activeTab === 'home' && (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Состояние */}
+            <div className="bg-white/70 backdrop-blur-xl p-5 rounded-[30px] border border-white shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#B89B72] mb-2">Настроение</p>
               <input 
                 type="text" 
                 value={mood} 
                 onChange={(e) => setMood(e.target.value)} 
-                placeholder="Напиши, что чувствуешь..." 
-                className="w-full bg-transparent border-none p-0 text-[15px] font-bold text-black focus:ring-0 placeholder:text-black/20"
+                placeholder="Что на душе?" 
+                className="w-full bg-transparent border-none p-0 text-[15px] font-bold text-black focus:ring-0 placeholder:text-black/10"
               />
             </div>
 
-Me, [16.02.2026 13:26]
-{/* Ежедневный инсайт */}
-            <div className="bg-white/30 backdrop-blur-md rounded-[40px] p-8 border border-white/50 text-center shadow-sm">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#B89B72] mb-4">Daily Insight</h4>
-              <p className="text-[14px] leading-relaxed font-bold italic opacity-80">
-                "Твое сияние начинается изнутри. Сегодня подходящий момент, чтобы замедлиться и прислушаться к себе."
+            {/* Инсайт */}
+            <div className="bg-white/40 backdrop-blur-md rounded-[40px] p-8 border border-white/50 text-center">
+              <p className="text-[14px] leading-relaxed font-bold italic opacity-70">
+                "Красота — это спокойствие ума."
               </p>
             </div>
 
-            {/* Девушка в лотосе (Центральный визуал) */}
+            {/* Иллюстрация (SVG - больше никакой собачки!) */}
             <div className="flex justify-center py-4">
-              <img 
-                src="https://images.squarespace-cdn.com/content/v1/576974d75016e1333796d9f4/1585253805445-56BIPJ955G57262U9K91/meditation+graphic.png" 
-                className="w-64 h-64 object-contain opacity-70 mix-blend-multiply" 
-                alt="Zen Woman" 
-              />
+              <ZenIllustration />
             </div>
 
-            {/* Сетка кнопок (6 факторов) */}
+            {/* Сетка */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Анализ кожи', icon: <Sparkles size={18}/> },
-                { label: 'Привычки', icon: <ClipboardList size={18}/> },
-                { label: 'Цикл & Мама', icon: <Heart size={18} className="text-red-500"/> },
-                { label: 'Талия & Вес', icon: <Scale size={18}/> },
+                { label: 'Уход за кожей', icon: <Sparkles size={18}/> },
+                { label: 'Трекер привычек', icon: <ClipboardList size={18}/> },
+                { label: 'Цикл & Мама', icon: <Heart size={18} className="text-red-400"/> },
+                { label: 'Вес & Талия', icon: <Scale size={18}/> },
                 { label: 'Гороскоп', icon: <Moon size={18}/> },
-                { label: 'Мои анализы', icon: <Activity size={18}/> }
+                { label: 'Анализы', icon: <Activity size={18}/> }
               ].map((m, i) => (
-                <button key={i} className="bg-white/80 backdrop-blur-sm p-7 rounded-[35px] flex flex-col items-center gap-3 border border-white shadow-sm active:scale-95 transition-all">
+                <button key={i} className="bg-white/90 backdrop-blur-sm p-7 rounded-[35px] flex flex-col items-center gap-3 border border-white shadow-sm active:scale-95 transition-all">
                   <div className="text-[#B89B72]">{m.icon}</div>
-                  <span className="text-[10px] font-black tracking-widest uppercase text-center leading-tight">{m.label}</span>
+                  <span className="text-[10px] font-black tracking-widest uppercase text-center">{m.label}</span>
                 </button>
               ))}
             </div>
@@ -117,74 +125,49 @@ Me, [16.02.2026 13:26]
         )}
 
         {activeTab === 'circle' && (
-          <div className="space-y-6">
-            <h3 className="text-3xl font-serif text-center mb-8">Lumia Circle</h3>
-            
-            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[35px] shadow-sm border border-white">
-              <div className="flex gap-4">
-                <input 
-                  type="text" 
-                  value={chatMessage}
-                  onChange={(e) => setChatMessage(e.target.value)}
-                  placeholder="Напиши подругам..." 
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-[15px] font-bold placeholder:text-black/20"
-                />
-                <button onClick={handleSendMessage} className="bg-black text-white p-3 rounded-full active:scale-90">
-                  <Send size={20}/>
-                </button>
-              </div>
+          <div className="space-y-6 animate-in slide-in-from-bottom-5">
+            <h3 className="text-2xl font-serif text-center mb-8">Lumia Circle</h3>
+            <div className="bg-white p-6 rounded-[35px] border border-white flex gap-3 shadow-sm">
+              <input 
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                placeholder="Ваше сообщение..." 
+                className="flex-1 bg-transparent border-none focus:ring-0 font-bold"
+              />
+              <button onClick={handleSendMessage} className="bg-black text-white p-3 rounded-full"><Send size={18}/></button>
             </div>
-
             <div className="space-y-4">
               {posts.map(p => (
-                <div key={p.id} className={p-6 rounded-[35px] border border-white shadow-sm ${p.isBot ? 'bg-[#B89B72]/10 border-[#B89B72]/20' : 'bg-white/95'}}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className={text-[10px] font-black uppercase tracking-widest ${p.isBot ? 'text-[#B89B72]' : 'text-black/40'}}>
-                      {p.user} {p.isBot && '🌙 AI'}
-                    </span>
-                    <span className="text-[9px] text-black/20 font-bold uppercase">{p.time}</span>
-                  </div>
-                  <p className="text-[14px] font-bold leading-relaxed">{p.text}</p>
+                <div key={p.id} className={p-6 rounded-[30px] border border-white shadow-sm ${p.isBot ? 'bg-[#B89B72]/10 border-[#B89B72]/20' : 'bg-white'}}>
+                   <p className="text-[10px] font-black text-[#B89B72] mb-1 uppercase">{p.user}</p>
+                   <p className="text-sm font-bold">{p.text}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        <footer className="mt-20 text-center opacity-40">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] px-10 leading-loose">
-            Lumia Harmony — информационно-образовательная система. 2026. 18+
-          </p>
-        </footer>
+        <p className="text-[8px] text-black/20 font-bold uppercase tracking-[0.2em] text-center mt-20">
+          Lumia Harmony. 2026. Обратитесь к специалисту.
+        </p>
       </div>
 
-Me, [16.02.2026 13:26]
-{/* Навигация */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-3xl border-t border-gray-100 p-8 rounded-t-[50px] shadow-[0_-15px_50px_rgba(0,0,0,0.05)]">
-        <div className="max-w-md mx-auto flex justify-around items-end">
-          <button onClick={() => setActiveTab('home')} className={flex flex-col items-center gap-1.5 ${activeTab === 'home' ? 'text-black' : 'text-gray-300'}}>
-            <Heart size={24} fill={activeTab === 'home' ? 'currentColor' : 'none'}/>
-            <span className="text-[8px] font-black uppercase tracking-widest">Lumia</span>
-          </button>
-          
-          <button onClick={() => setActiveTab('circle')} className={flex flex-col items-center gap-1.5 ${activeTab === 'circle' ? 'text-black' : 'text-gray-300'}}>
-            <MessageCircle size={24} fill={activeTab === 'circle' ? 'currentColor' : 'none'}/>
-            <span className="text-[8px] font-black uppercase tracking-widest">Клуб</span>
-          </button>
+      {/* Меню */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-3xl border-t border-gray-100 p-8 rounded-t-[50px] shadow-2xl">
+        <div className="max-w-md mx-auto flex justify-around items-center">
 
-          <div className="relative -top-12">
-            <button className="bg-black text-white p-6 rounded-full shadow-2xl border-4 border-[#F2EDE4] hover:rotate-45 transition-transform duration-500">
-              <Sparkles size={28}/>
-            </button>
+Me, [16.02.2026 13:29]
+<button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? 'text-black' : 'text-gray-300'}>
+            <Heart size={24} fill={activeTab === 'home' ? 'black' : 'none'}/>
+          </button>
+          <button onClick={() => setActiveTab('circle')} className={activeTab === 'circle' ? 'text-black' : 'text-gray-300'}>
+            <MessageCircle size={24} fill={activeTab === 'circle' ? 'black' : 'none'}/>
+          </button>
+          <div className="bg-black text-white p-5 rounded-full -mt-12 border-4 border-[#F2EDE4] shadow-xl">
+            <Sparkles size={24}/>
           </div>
-
-          <button className="flex flex-col items-center gap-1.5 text-gray-300">
-            <BarChart3 size={24}/><span className="text-[8px] font-black uppercase tracking-widest">Анализ</span>
-          </button>
-
-          <button className="flex flex-col items-center gap-1.5 text-gray-300">
-            <User size={24}/><span className="text-[8px] font-black uppercase tracking-widest">Я</span>
-          </button>
+          <button className="text-gray-300"><BarChart3 size={24}/></button>
+          <button className="text-gray-300"><User size={24}/></button>
         </div>
       </nav>
     </div>
