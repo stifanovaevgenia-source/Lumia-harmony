@@ -1,86 +1,192 @@
-Me, [16.02.2026 13:11]
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumia Harmony</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        /* Здесь вы можете вставить ссылку на ваш любимый фон */
-        body {
-            background-image: url('ВАША_ССЫЛКА_НА_ФОН'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-    </style>
-</head>
-<body class="bg-[#F2EDE4]">
-    <div id="root"></div>
+Me, [16.02.2026 13:26]
+import React, { useState } from 'react';
+import { 
+  Heart, Sparkles, MessageCircle, User, Scale, 
+  Star, Activity, ClipboardList, Moon, ChevronDown, 
+  Smile, Send, BarChart3 
+} from 'lucide-react';
 
-    <script type="text/babel">
-        const { useState } = React;
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [ascendant, setAscendant] = useState('Выберите Асцендент');
+  const [showAsc, setShowAsc] = useState(false);
+  const [mood, setMood] = useState('');
+  const [chatMessage, setChatMessage] = useState('');
+  const [posts, setPosts] = useState([
+    { id: 1, user: 'LUNA AI', text: 'Сегодня идеальный день для ухода за собой. Твоя кожа будет благодарна за увлажнение.', time: '12:00', isBot: true }
+  ]);
 
-        const App = () => {
-            return (
-                <div className="min-h-screen flex flex-col items-center p-6 text-black backdrop-blur-[2px]">
-                    <header className="text-center mb-10 mt-4">
-                        {/* Улучшенная читабельность: темный цвет и тень */}
-                        <h1 className="text-4xl font-light tracking-[0.2em] uppercase mb-4 text-[#2C2C2C] drop-shadow-sm">
-                            Lumia Harmony
-                        </h1>
-                        <p className="italic text-gray-800 font-medium">Добрый день, Jenni</p>
-                        <p className="text-xs opacity-80 uppercase tracking-tighter">Гармония в 2026 году</p>
-                    </header>
+  const zodiacs = ["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"];
 
-                    <main className="max-w-md w-full space-y-4">
-                        {/* Блок с центральной кнопкой/иллюстрацией */}
-                        <div className="bg-white/60 backdrop-blur-2xl rounded-[40px] p-8 shadow-2xl border border-white/40 text-center mb-6">
-                            <div className="mb-6">
-                                <div className="w-24 h-24 bg-[#B89B72]/30 rounded-full mx-auto flex items-center justify-center border border-[#B89B72]/50 animate-pulse">
-                                    <span className="text-[#5C4D36] text-[10px] font-bold">LUNA AI</span>
-                                </div>
-                            </div>
-                            <button className="w-full py-4 bg-[#2C2C2C] text-white rounded-2xl uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">
-                                Войти в практику
-                            </button>
-                        </div>
+  const handleSendMessage = () => {
+    if (!chatMessage.trim()) return;
+    setPosts([{ id: Date.now(), user: 'jenni', text: chatMessage, time: 'Сейчас' }, ...posts]);
+    setChatMessage('');
+  };
 
-                        {/* ТРИ ВАШИ КНОПКИ (из сохраненных инструкций) */}
-                        <div className="grid grid-cols-1 gap-3">
-                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
-                                <span className="text-sm font-light uppercase tracking-wide">📊 Трекер привычек</span>
-                                <span className="text-lg">→</span>
-                            </button>
-                            
-                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
-                                <span className="text-sm font-light uppercase tracking-wide">📅 Женский контроль</span>
-                                <span className="text-lg">→</span>
-                            </button>
-                            
-                            <button className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-white/30 hover:bg-white/70 transition-all">
-                                <span className="text-sm font-light uppercase tracking-wide">✨ Красота и уход</span>
-                                <span className="text-lg">→</span>
-                            </button>
-                        </div>
-                    </main>
+  return (
+    <div className="min-h-screen relative font-sans text-black" style={{ backgroundColor: '#F2EDE4' }}>
+      
+      {/* Фон с мягким размытием */}
+      <div className="fixed inset-0 pointer-events-none opacity-40">
+         <img src="https://images.unsplash.com/photo-1502673530728-f79b4cab31b1?auto=format&fit=crop&q=80" className="w-full h-full object-cover blur-[80px]" alt="Background"/>
+      </div>
 
-Me, [16.02.2026 13:11]
-<footer className="mt-auto pt-10 pb-6 text-[10px] uppercase tracking-widest text-center text-gray-700">
-                        <p>© 2026 Lumia Harmony. Все права защищены.</p>
-                        <p className="mt-2 opacity-50">Disclaimer: Not a medical app.</p>
-                    </footer>
+      <div className="relative z-10 max-w-lg mx-auto pb-40 px-6">
+        
+        {/* Шапка проекта */}
+        <header className="pt-12 pb-8 text-center">
+          <div className="mb-4">
+            <h2 className="text-[#B89B72] tracking-[0.5em] text-sm font-serif uppercase">LUMIA</h2>
+            <p className="text-[#B89B72] text-[8px] tracking-[0.2em] uppercase opacity-60">Harmony</p>
+          </div>
+          <h1 className="text-3xl font-serif font-light mb-4">Доброе утро, jenni!</h1>
+          
+          {/* Интерактивный Асцендент */}
+          <div className="relative inline-block">
+            <button 
+              onClick={() => setShowAsc(!showAsc)} 
+              className="flex items-center gap-2 py-2 px-6 bg-white/40 backdrop-blur-md rounded-full border border-white/60 text-[10px] font-black uppercase text-[#B89B72] shadow-sm active:scale-95 transition-all"
+            >
+              <Star size={12} className="fill-[#B89B72]"/> {ascendant} <ChevronDown size={12}/>
+            </button>
+            {showAsc && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-xl border border-white z-50 max-h-52 overflow-y-auto p-2">
+                {zodiacs.map(z => (
+                  <button key={z} onClick={() => {setAscendant(z); setShowAsc(false)}} className="w-full py-2 px-4 text-[10px] font-bold text-left hover:bg-[#F2EDE4] rounded-xl text-black">
+                    {z}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {activeTab === 'home' && (
+          <div className="space-y-8">
+            {/* Трекер настроения */}
+            <div className="bg-white/60 backdrop-blur-xl p-5 rounded-[30px] border border-white shadow-sm ring-1 ring-black/[0.02]">
+              <div className="flex items-center gap-3 mb-2">
+                <Smile size={18} className="text-[#B89B72]" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Твое состояние</span>
+              </div>
+              <input 
+                type="text" 
+                value={mood} 
+                onChange={(e) => setMood(e.target.value)} 
+                placeholder="Напиши, что чувствуешь..." 
+                className="w-full bg-transparent border-none p-0 text-[15px] font-bold text-black focus:ring-0 placeholder:text-black/20"
+              />
+            </div>
+
+Me, [16.02.2026 13:26]
+{/* Ежедневный инсайт */}
+            <div className="bg-white/30 backdrop-blur-md rounded-[40px] p-8 border border-white/50 text-center shadow-sm">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#B89B72] mb-4">Daily Insight</h4>
+              <p className="text-[14px] leading-relaxed font-bold italic opacity-80">
+                "Твое сияние начинается изнутри. Сегодня подходящий момент, чтобы замедлиться и прислушаться к себе."
+              </p>
+            </div>
+
+            {/* Девушка в лотосе (Центральный визуал) */}
+            <div className="flex justify-center py-4">
+              <img 
+                src="https://images.squarespace-cdn.com/content/v1/576974d75016e1333796d9f4/1585253805445-56BIPJ955G57262U9K91/meditation+graphic.png" 
+                className="w-64 h-64 object-contain opacity-70 mix-blend-multiply" 
+                alt="Zen Woman" 
+              />
+            </div>
+
+            {/* Сетка кнопок (6 факторов) */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'Анализ кожи', icon: <Sparkles size={18}/> },
+                { label: 'Привычки', icon: <ClipboardList size={18}/> },
+                { label: 'Цикл & Мама', icon: <Heart size={18} className="text-red-500"/> },
+                { label: 'Талия & Вес', icon: <Scale size={18}/> },
+                { label: 'Гороскоп', icon: <Moon size={18}/> },
+                { label: 'Мои анализы', icon: <Activity size={18}/> }
+              ].map((m, i) => (
+                <button key={i} className="bg-white/80 backdrop-blur-sm p-7 rounded-[35px] flex flex-col items-center gap-3 border border-white shadow-sm active:scale-95 transition-all">
+                  <div className="text-[#B89B72]">{m.icon}</div>
+                  <span className="text-[10px] font-black tracking-widest uppercase text-center leading-tight">{m.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'circle' && (
+          <div className="space-y-6">
+            <h3 className="text-3xl font-serif text-center mb-8">Lumia Circle</h3>
+            
+            <div className="bg-white/80 backdrop-blur-xl p-6 rounded-[35px] shadow-sm border border-white">
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  placeholder="Напиши подругам..." 
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-[15px] font-bold placeholder:text-black/20"
+                />
+                <button onClick={handleSendMessage} className="bg-black text-white p-3 rounded-full active:scale-90">
+                  <Send size={20}/>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {posts.map(p => (
+                <div key={p.id} className={p-6 rounded-[35px] border border-white shadow-sm ${p.isBot ? 'bg-[#B89B72]/10 border-[#B89B72]/20' : 'bg-white/95'}}>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className={text-[10px] font-black uppercase tracking-widest ${p.isBot ? 'text-[#B89B72]' : 'text-black/40'}}>
+                      {p.user} {p.isBot && '🌙 AI'}
+                    </span>
+                    <span className="text-[9px] text-black/20 font-bold uppercase">{p.time}</span>
+                  </div>
+                  <p className="text-[14px] font-bold leading-relaxed">{p.text}</p>
                 </div>
-            );
-        };
+              ))}
+            </div>
+          </div>
+        )}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+        <footer className="mt-20 text-center opacity-40">
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] px-10 leading-loose">
+            Lumia Harmony — информационно-образовательная система. 2026. 18+
+          </p>
+        </footer>
+      </div>
+
+Me, [16.02.2026 13:26]
+{/* Навигация */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-3xl border-t border-gray-100 p-8 rounded-t-[50px] shadow-[0_-15px_50px_rgba(0,0,0,0.05)]">
+        <div className="max-w-md mx-auto flex justify-around items-end">
+          <button onClick={() => setActiveTab('home')} className={flex flex-col items-center gap-1.5 ${activeTab === 'home' ? 'text-black' : 'text-gray-300'}}>
+            <Heart size={24} fill={activeTab === 'home' ? 'currentColor' : 'none'}/>
+            <span className="text-[8px] font-black uppercase tracking-widest">Lumia</span>
+          </button>
+          
+          <button onClick={() => setActiveTab('circle')} className={flex flex-col items-center gap-1.5 ${activeTab === 'circle' ? 'text-black' : 'text-gray-300'}}>
+            <MessageCircle size={24} fill={activeTab === 'circle' ? 'currentColor' : 'none'}/>
+            <span className="text-[8px] font-black uppercase tracking-widest">Клуб</span>
+          </button>
+
+          <div className="relative -top-12">
+            <button className="bg-black text-white p-6 rounded-full shadow-2xl border-4 border-[#F2EDE4] hover:rotate-45 transition-transform duration-500">
+              <Sparkles size={28}/>
+            </button>
+          </div>
+
+          <button className="flex flex-col items-center gap-1.5 text-gray-300">
+            <BarChart3 size={24}/><span className="text-[8px] font-black uppercase tracking-widest">Анализ</span>
+          </button>
+
+          <button className="flex flex-col items-center gap-1.5 text-gray-300">
+            <User size={24}/><span className="text-[8px] font-black uppercase tracking-widest">Я</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  );
+}
