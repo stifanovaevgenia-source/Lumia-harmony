@@ -1,59 +1,50 @@
-<button onClick={() => setStep('onboarding')} className="flex items-center gap-2 mt-auto py-4 text-[10px] font-bold opacity-40 hover:opacity-100 uppercase tracking-widest transition-opacity">
-              <LogOut size={14} /> {t[lang].logout}
-            </button>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumia Harmony</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#F2EDE4]">
+    <div id="root"></div>
 
-      {/* ЦЕНТРАЛЬНЫЙ КОНТЕНТ */}
-      <main className="flex-1 relative z-10 flex flex-col min-h-screen">
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
-          
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative text-center">
-            {/* ДЕВУШКА В ЛОТОСЕ */}
-            <div className="relative w-[260px] md:w-[420px] aspect-square mx-auto mb-8 drop-shadow-[0_35px_35px_rgba(0,0,0,0.2)]">
-              <img 
-                src={images.girl} 
-                alt="Yoga Illustration"
-                className="w-full h-full object-contain"
-              />
-            </div>
+    <script type="text/babel">
+        const App = () => {
+            return (
+                <div className="min-h-screen flex flex-col items-center p-8 text-black">
+                    <header className="text-center mb-10">
+                        <h1 className="text-4xl font-light tracking-[0.2em] uppercase mb-4">Lumia Harmony</h1>
+                        <p className="italic text-gray-600">Добрый день, Jenni</p>
+                        <p className="text-sm opacity-70">Гармония в 2026 году</p>
+                    </header>
 
-            {step === 'dashboard' ? (
-              <div className="space-y-2">
-                <h3 className="text-2xl md:text-4xl font-light tracking-[0.3em] uppercase">Добрый день, Jenni</h3>
-                <p className="text-[10px] text-[#B89B72] font-bold tracking-[0.4em] uppercase opacity-70 italic">Гармония в 2026 году</p>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setStep('dashboard')} 
-                className="mt-4 bg-[#000000] text-white px-16 py-4 rounded-full text-[11px] font-bold tracking-[0.5em] uppercase hover:bg-zinc-800 transition-all shadow-2xl"
-              >
-                {t[lang].enter}
-              </button>
-            )}
-          </motion.div>
-        </div>
+                    <main className="max-w-md w-full bg-white/40 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 text-center">
+                        <div className="mb-8">
+                            {/* Здесь твоя иллюстрация */}
+                            <div className="w-32 h-32 bg-[#B89B72]/20 rounded-full mx-auto flex items-center justify-center border border-[#B89B72]">
+                                <span className="text-[#B89B72] text-xs">YOGA MOUSE</span>
+                            </div>
+                        </div>
 
-        {/* ФУТЕР (Как вы просили: 2026, мелкий текст, высокая читаемость) */}
-        <footer className="w-full py-8 px-6 text-center space-y-3 bg-[#F2EDE4]/30 backdrop-blur-md border-t border-black/5">
-           <p className="text-[10px] md:text-xs leading-relaxed max-w-2xl mx-auto font-medium text-black uppercase tracking-tight">
-             {t.ru.disclaimer}
-           </p>
-           <p className="text-[9px] font-bold opacity-30 tracking-[0.2em] uppercase">
-             {t.ru.copy}
-           </p>
-        </footer>
-      </main>
+                        <button className="w-full py-4 bg-black text-white rounded-full uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg">
+                            Войти в практику
+                        </button>
+                    </main>
 
-      {/* КНОПКА LUNA AI */}
-      {step === 'dashboard' && (
-        <button className="fixed bottom-32 right-6 md:bottom-12 md:right-12 w-16 h-16 bg-white border border-[#B89B72]/20 rounded-full shadow-2xl flex items-center justify-center text-[#B89B72] z-[200] hover:scale-110 active:scale-95 transition-all">
-          <Moon fill="currentColor" size={28} />
-        </button>
-      )}
-    </div>
-  );
-};
+                    <footer className="mt-auto pt-10 text-[10px] uppercase tracking-widest text-center opacity-50">
+                        <p>© 2026 Lumia Harmony. Все права защищены.</p>
+                        <p className="mt-2 text-red-900/40">Disclaimer: Not a medical app.</p>
+                    </footer>
+                </div>
+            );
+        };
 
-export default LumiaHarmony;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</body>
+</html>
